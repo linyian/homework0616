@@ -21,14 +21,18 @@
         d3.json("invoice-taipei.json", function(dataSet) {
             var svg = d3.select("svg");
             var fDataSet = dataSet.filter(function(d) {
-                return d.amount;
+                return d.amount > 10000000;
             })
-        });
-        /*for (var i = 0; i < fDataSet.length; i++) { ?
-                ?
-                ?
+
+            for (var i = 0; i < fDataSet.length; i++) {
+                svg.append('rect').attr({
+                    x: 5 + 10 * i;
+                    y: 5;
+                    width: fDataSet[i] / 10000000;
+                    height: 7;
+                })
             }
-        });*/
+        });
     </script>
 </body>
 
