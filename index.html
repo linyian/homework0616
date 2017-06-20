@@ -22,15 +22,17 @@
             var svg = d3.select("svg");
             var fDataSet = dataSet.filter(function(d) {
                 return d.amount > 10000000;
-            })
+            });
 
             for (var i = 0; i < fDataSet.length; i++) {
                 svg.append('rect').attr({
                     x: 5 + 10 * i,
                     y: 5,
-                    width: 'fDataSet[i].amount / 10000000',
+                    width: function(d, i) {
+                        return d.amout / 10000000;
+                    },
                     height: 7,
-                })
+                }).data(fDataSet);
             }
         });
     </script>
