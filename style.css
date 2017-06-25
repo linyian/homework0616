@@ -1,0 +1,13 @@
+h1 {
+    font-size: 1.6em;
+    color: #333;
+    margin: 0.1em;
+}
+
+div {
+    padding: 1em;
+}
+
+svg {
+    padding-bottom: 3em;
+}

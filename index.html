@@ -1,40 +1,205 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>d3-start</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
     <script src="https://d3js.org/d3.v3.js"></script>
-    <style>
-        div {
-            font-size: 7px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <svg width="900" height="500">
+    <div class="block1">
+        <h1>2016年年8⽉台北市發票數量量大於10億張之產業</h1>
+        <script>
+            d3.json("invoice-taipei.json", function(dataSet) {
+                var body = d3.select('body').select('.block1');
+                var svg = body.append('svg').attr({
+                    'width': 700,
+                    'height': 290,
+                    'id': 'svg_invoice'
+                });
+                var fDataSet = dataSet.filter(function(d) {
+                    return d.amount > 1000000000 &&
+                        d.city === "臺北市" &&
+                        d.date.substring(0, 6) /*substring提取字串(第一個字值為0)*/ === "2016/8";
+                });
+                for (var i = 0; i < fDataSet.length /*物件的數量*/ ; i++) {
 
-  </svg>
+                    svg.append('text').attr({
+                        x: 20,
+                        y: 18 + (25 * i),
+                        'font-size': 16,
+                        fill: ' #4c4c4c',
+                    }).text(fDataSet[i].industry);
+                    svg.append('rect').attr({
+                        x: 300,
+                        y: 5 + (25 * i),
+                        width: fDataSet[i].amount / 50000000,
+                        height: 20,
+                        fill: '#f16464 '
+                    }).data(fDataSet)
+                    svg.append('text').attr({
+                        x: 298.5 + fDataSet[i].amount / 50000000,
+                        y: 18 + (25 * i),
+                        'font-size': 12,
+                        fill: ' #f9d5d5',
+                        'text-anchor': 'end',
+                    }).text(Math.round(fDataSet[i].amount / 100000000) + '憶')
 
-    <script>
-        d3.json("invoice-taipei.json", function(dataSet) {
-            var svg = d3.select("svg");
-            var fDataSet = dataSet.filter(function(d) {
-                return d.amount > 10000000 && d.cid == "A" && d.date.substring(0, 6) == "2016/8";;
+                }
             });
+        </script>
+    </div>
+    <div class="block2">
+        <h1>Binding</h1>
+        <script>
+            var arr = [85, 60, 99, 49, 77, 82];
 
-            for (var i = 0; i < fDataSet.length; i++) {
-                svg.append('rect').attr({
-                    x: 5,
-                    y: 5 + 10 * i,
-                    width: fDataSet[i].amount / 10000000,
-                    height: 7,
-                    fill: 'red',
+            bind(arr);
+            render();
+
+            function bind(data) {
+                var selection = d3.select('body')
+                    .select('div.block2').selectAll('p').data(arr);
+                selection.enter().append('p');
+                selection.exit().remove();
+            }
+
+            function render() {
+                d3.selectAll('body>div.block2>p').text(function(d, i) {
+                    return (i + 1) + ":" + d
+                }).style({
+                    color: function(d) {
+                        if (d > 70) {
+                            return "red"
+                        } else {
+                            return "black"
+                        }
+                    },
                 })
             }
-        });
-    </script>
+        </script>
+    </div>
+    <div class="block3">
+        <h1>長條圖</h1>
+        <input type="button" value="create" onclick="update()">
+        <input type="button" value="delete" onclick="del()">
+        <BR />
+        <script>
+            var arr = [85, 60, 92, 44, 59, 98, 100, 78, 12];
+            var h = 200,
+                w = 1000,
+                p = 50;
+
+            svg();
+            bind(arr);
+            render();
+
+            function svg() {
+                d3.select('body>div.block3').append('svg').attr({
+                    width: w,
+                    height: h,
+                    id: 'bar-chart',
+                })
+            };
+
+            function bind(dataSet) {
+                //長條圖
+                var selection = d3.select('svg#bar-chart')
+                    .selectAll('rect')
+                    .data(dataSet);
+                selection.enter().append('rect');
+                selection.exit().remove();
+                //文字
+                var select_text = d3.select('svg#bar-chart')
+                    .selectAll('text')
+                    .data(dataSet);
+                select_text.enter().append('text');
+                select_text.exit().remove();
+            };
+
+            function render() {
+
+                var svg = d3.select('svg#bar-chart');
+                svg.selectAll("rect")
+                    .attr({
+                        x: function(d, i) {
+                            return 5 + 45 * i;
+                        },
+                        y: function(d, i) {
+                            return h - d - p;
+                        },
+                        width: function(d, i) {
+                            return 40;
+                        },
+                        height: function(d, i) {
+                            return d;
+                        },
+                        fill: function(d, i) {
+                            if (d < 70) {
+                                return "red";
+                            } else {
+                                return "lightgreen";
+                            }
+                        }
+                    });
+
+                svg.selectAll("text")
+                    .text(function(d, i) {
+                        return d;
+                    })
+                    .attr({
+                        x: function(d, i) {
+                            return 10 + 45 * i + 10;
+                        },
+                        y: h - 10,
+
+                    });
+            };
+
+            function update() {
+                arr.push(randon_num(0, 100));
+                bind(arr);
+                render();
+                console.log(arr);
+            }
+
+            function del() {
+                arr.shift();
+                bind(arr);
+                render();
+                console.log(arr);
+            }
+
+            function randon_num(M, N) {
+                var rScale = d3.scale.linear()
+                    .domain([0, 1])
+                    .rangeRound([M, N]);
+                return rScale(Math.random());
+            }
+        </script>
+        <div class="block4">
+            <h1>政黨顏色</h1>
+            <script>
+                var party = ["中國國民黨", "民主進步黨", "時代力量", "無黨團結聯盟 ", "親民黨"];
+                var color = ["#0b0b98", "#077707 ", "#f9c030 ", "#888 ", "#ff8800 "];
+                var xScale = d3.scale.ordinal().domain(party).range(color);
+                for (var i = 0; i < party.length; i++) {
+                    d3.select('.block4')
+                        .append('span')
+                        .text(party[i] + " ")
+                        .style({
+                            color: xScale(party[i]),
+                            padding: 5
+                        });
+                    console.log(xScale[i]);
+                }
+            </script>
+        </div>
+    </div>
 </body>
 
 </html>
